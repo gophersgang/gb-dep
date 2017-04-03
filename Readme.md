@@ -42,3 +42,12 @@ package.lock is tied to the the package.json via a checksum value, that forces p
     $ gb-dep update
 
 forces package.lock update, this will update the not-fixed packages to latest sha on master
+
+
+
+## Thx
+  - https://github.com/mattn/gom - for some code snippets.
+
+## License
+
+MIT licensed. See the LICENSE file for details.
