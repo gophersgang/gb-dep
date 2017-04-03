@@ -8,9 +8,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/gophersgang/gb-dep/install"
-	"github.com/gophersgang/gb-dep/subcommands"
-	"github.com/gophersgang/gb-dep/update"
+	"github.com/gophersgang/gb-dep/pkg/install"
+	"github.com/gophersgang/gb-dep/pkg/subcommands"
+	"github.com/gophersgang/gb-dep/pkg/update"
 )
 
 func main() {

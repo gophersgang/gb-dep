@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gophersgang/gb-dep/subcommands"
+	"github.com/gophersgang/gb-dep/pkg/subcommands"
 )
 
 type runner struct {
