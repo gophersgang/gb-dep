@@ -1,6 +1,7 @@
 package subcommands
 
 // copy from https://github.com/apoydence/loggr/tree/master/subcommands
+// https://gist.github.com/apoydence/d1470065e31531304ac45db941afd09e
 import (
 	"fmt"
 	"log"
