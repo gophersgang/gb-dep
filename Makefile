@@ -1,2 +1,6 @@
 run:
 	go build ./... && go install ./...
+
+
+test:
+	go test -v ./...
