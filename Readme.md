@@ -46,7 +46,8 @@ forces package.lock update, this will update the not-fixed packages to latest sh
 
 
 ## Thx
-  - https://github.com/mattn/gom - for some code snippets.
+  - https://github.com/mattn/gom - for some code snippets
+  - https://github.com/apoydence/loggr - for subcommands handling logic
 
 ## License
 
