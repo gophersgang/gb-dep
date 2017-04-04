@@ -260,13 +260,3 @@ func parseInstallFlags(args []string) (opts map[string]string, retargs []string)
 	}
 	return
 }
-
-func hasSaveOpts(opts map[string]string) bool {
-	if _, ok := opts["save"]; ok {
-		return true
-	}
-	if _, ok := opts["save-dev"]; ok {
-		return true
-	}
-	return false
-}
