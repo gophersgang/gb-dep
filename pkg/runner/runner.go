@@ -23,6 +23,7 @@ const (
 
 var (
 	vendorFolder = "src/vendor"
+	pgkFile      = "package.hjson"
 )
 
 func handleSignal() {
@@ -35,7 +36,7 @@ func handleSignal() {
 	}()
 }
 
-// will prepare
+// Ready prepares the environment variables
 func Ready() error {
 	dir, err := os.Getwd()
 	if err != nil {
@@ -48,7 +49,7 @@ func Ready() error {
 	}
 
 	for {
-		file := filepath.Join(dir, "package.hjson")
+		file := filepath.Join(dir, pgkFile)
 		if isFile(file) {
 			vendor = filepath.Join(dir, vendorFolder)
 			break
@@ -61,9 +62,7 @@ func Ready() error {
 		dir = next
 	}
 
-	binPath := os.Getenv("PATH") +
-		string(filepath.ListSeparator) +
-		filepath.Join(vendor, "bin")
+	binPath := os.Getenv("PATH") + string(filepath.ListSeparator) + filepath.Join(vendor, "bin")
 	err = os.Setenv("PATH", binPath)
 	if err != nil {
 		return err
@@ -103,6 +102,7 @@ func Run(args []string, c Color) error {
 	return err
 }
 
+// List returns go packages
 func List(dir string) ([]string, error) {
 	cmd := exec.Command("go", "list", "./...")
 	cmd.Dir = dir
