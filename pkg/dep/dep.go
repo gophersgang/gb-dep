@@ -53,8 +53,7 @@ func (d *Dep) commitBranchTag() string {
 	return v
 }
 
-// Update will update the code for a package
-func (d *Dep) Update() error {
+func (d *Dep) updateArgs() []string {
 	cmdArgs := []string{"go", "get", "-u"}
 	if d.Insecure {
 		cmdArgs = append(cmdArgs, "-insecure")
@@ -62,9 +61,25 @@ func (d *Dep) Update() error {
 
 	recursive := d.recursiveStr()
 	cmdArgs = append(cmdArgs, d.Name+recursive)
+	return cmdArgs
+}
 
+// Update will update the code for a package
+func (d *Dep) Update() error {
 	fmt.Printf("updating %s\n", d.Name)
-	return runner.Run(cmdArgs, runner.Green)
+	return runner.Run(d.updateArgs(), runner.Green)
+}
+
+func (d *Dep) cloneArgs(args []string) []string {
+	cmdArgs := []string{"go", "get", "-d"}
+	if d.Insecure {
+		cmdArgs = append(cmdArgs, "-insecure")
+	}
+
+	recursive := d.recursiveStr()
+	cmdArgs = append(cmdArgs, args...)
+	cmdArgs = append(cmdArgs, d.Name+recursive)
+	return cmdArgs
 }
 
 // Clone will clone a repo
@@ -95,17 +110,8 @@ func (d *Dep) Clone(args []string) error {
 		return nil
 	}
 
-	cmdArgs := []string{"go", "get", "-d"}
-	if d.Insecure {
-		cmdArgs = append(cmdArgs, "-insecure")
-	}
-
-	recursive := d.recursiveStr()
-	cmdArgs = append(cmdArgs, args...)
-	cmdArgs = append(cmdArgs, d.Name+recursive)
-
 	fmt.Printf("downloading %s\n", d.Name)
-	return runner.Run(cmdArgs, runner.Blue)
+	return runner.Run(d.cloneArgs(args), runner.Blue)
 }
 
 // Checkout will checkout the most specific commit of a package
