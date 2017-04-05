@@ -18,6 +18,7 @@ var (
 	vendorFolder = "src/vendor"
 )
 
+// Dep is a dependency (package)
 type Dep struct {
 	packagefile.Pkg
 }
@@ -52,6 +53,7 @@ func (d *Dep) commitBranchTag() string {
 	return v
 }
 
+// Update will update the code for a package
 func (d *Dep) Update() error {
 	cmdArgs := []string{"go", "get", "-u"}
 	if d.Insecure {
@@ -65,6 +67,7 @@ func (d *Dep) Update() error {
 	return runner.Run(cmdArgs, runner.Green)
 }
 
+// Clone will clone a repo
 func (d *Dep) Clone(args []string) error {
 	vendor, err := filepath.Abs(vendorFolder)
 	if err != nil {
@@ -105,10 +108,11 @@ func (d *Dep) Clone(args []string) error {
 	return runner.Run(cmdArgs, runner.Blue)
 }
 
+// Checkout will checkout the most specific commit of a package
 func (d *Dep) Checkout() error {
-	commit_or_branch_or_tag := d.commitBranchTag()
+	commitBranchTag := d.commitBranchTag()
 
-	if commit_or_branch_or_tag == "" {
+	if commitBranchTag == "" {
 		return nil
 	}
 	vendor, err := filepath.Abs(vendorFolder)
@@ -130,7 +134,7 @@ func (d *Dep) Checkout() error {
 		}
 		if dvcs != nil {
 			p = filepath.Join(vendor, "src", target)
-			return dvcs.Sync(p, commit_or_branch_or_tag)
+			return dvcs.Sync(p, commitBranchTag)
 		}
 	}
 	fmt.Printf("Warning: don't know how to checkout for %v\n", d.Name)
