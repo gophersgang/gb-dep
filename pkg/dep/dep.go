@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/gophersgang/gb-dep/pkg/packagefile"
-	. "github.com/gophersgang/gb-dep/pkg/runner"
+	"github.com/gophersgang/gb-dep/pkg/runner"
 	"github.com/gophersgang/gb-dep/pkg/vcs"
 )
 
@@ -62,7 +62,7 @@ func (d *Dep) Update() error {
 	cmdArgs = append(cmdArgs, d.Name+recursive)
 
 	fmt.Printf("updating %s\n", d.Name)
-	return Run(cmdArgs, Green)
+	return runner.Run(cmdArgs, runner.Green)
 }
 
 func (d *Dep) Clone(args []string) error {
@@ -82,7 +82,7 @@ func (d *Dep) Clone(args []string) error {
 		customCmd = append(customCmd, srcdir)
 
 		fmt.Printf("fetching %s (%v)\n", d.Name, customCmd)
-		err = Run(customCmd, Blue)
+		err = runner.Run(customCmd, runner.Blue)
 		if err != nil {
 			return err
 		}
@@ -102,7 +102,7 @@ func (d *Dep) Clone(args []string) error {
 	cmdArgs = append(cmdArgs, d.Name+recursive)
 
 	fmt.Printf("downloading %s\n", d.Name)
-	return Run(cmdArgs, Blue)
+	return runner.Run(cmdArgs, runner.Blue)
 }
 
 func (d *Dep) Checkout() error {
@@ -183,7 +183,7 @@ func (d *Dep) build(args []string) (err error) {
 		return vcs.VcsExec(pkgPath, installCmd...)
 	}
 
-	pkgs, err := List(pkgPath)
+	pkgs, err := runner.List(pkgPath)
 	if err != nil {
 		return err
 	}
