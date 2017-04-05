@@ -23,12 +23,12 @@ type Dep struct {
 
 // Run knows what to do
 func (d *Dep) Run() error {
-	d.ensure()
-	fmt.Println(d.Name)
-	fmt.Println(d.CommitBranchTag())
+
+	// fmt.Println(d.Name)
+	// fmt.Println(d.CommitBranchTag())
+	d.ensureBasefolders()
 	d.ensureCacheFresh()
 	d.ensureCheckout()
-
 	return nil
 }
 
@@ -131,9 +131,15 @@ func (d *Dep) ensureCacheFresh() error {
 
 func (d *Dep) ensureCheckout() error {
 	d.Copyvcs()
-	checkoutCmd := fmt.Sprintf("git reset --hard %s", d.CommitBranchTag())
-	runCmd(d.pkgCheckoutFolder(), strings.Split(checkoutCmd, " "), []string{})
-	runCmd(d.pkgCheckoutFolder(), []string{"go", "get", "-u", d.Name}, []string{})
+	os.Setenv("GOBIN", filepath.Join(d.vendorFolder(), "bin")) // this is important to get binaries
+	myRun := func(argStr string) {
+		runCmd(d.pkgCheckoutFolder(), strings.Split(argStr, " "), []string{})
+	}
+	myRun(fmt.Sprintf("git clean -df"))
+	myRun(fmt.Sprintf("git reset --hard %s", d.CommitBranchTag()))
+	myRun(fmt.Sprintf("go get -u %s", d.Name))
+	myRun(fmt.Sprintf("go install ./..."))
+
 	return nil
 }
 
@@ -152,7 +158,7 @@ func (d *Dep) vendorFolder() string {
 	return d.RootFolder + "/" + "vendor"
 }
 
-func (d *Dep) ensure() error {
+func (d *Dep) ensureBasefolders() error {
 	os.MkdirAll(d.cacheFolder(), 0777)
 	os.MkdirAll(d.vendorFolder(), 0777)
 	os.MkdirAll(d.pkgCheckoutFolder(), 0777)
