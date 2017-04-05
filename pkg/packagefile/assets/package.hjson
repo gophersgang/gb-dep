@@ -2,8 +2,8 @@ packages: [
   // default packages
 
   // dev packages
-  { name: "github.com/mattn/gover", commit: "x8948594854" , group: ["production"], goos: [ "windows", "linux", "darwin" ]}
+  { name: "github.com/mattn/gover", commit: "x8948594854" , group: ["production"], goos: [ "windows", "linux", "darwin" ] }
 
   // test packages
-  { name: "github.com/mattn/gom", commit: "x8948594854", group: ["test"], goos: [ "windows", "linux", "darwin" ] },  // blabkabla
+  { name: "github.com/mattn/gom", commit: "x8948594854", group: ["test"], goos: [ "windows", "linux", "darwin" ] },
 ]

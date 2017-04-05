@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gophersgang/gb-dep/pkg/runner"
+	"os"
+
+	"github.com/gophersgang/gb-dep/pkg/packagefile"
 	"github.com/gophersgang/gb-dep/pkg/subcommands"
 )
 
@@ -25,11 +27,31 @@ func New() subcommands.Command {
 func (r *cmd) Run(args []string, log *log.Logger) {
 	r.fs.Parse(args)
 	fmt.Println("Running install....")
-	runner.Run([]string{"echo", "this"}, runner.Green)
+	install(args)
+	// runner.Run([]string{"echo", "this"}, runner.Green)
 }
 
 func (r *cmd) Usage() string {
 	return "install --verbose=true"
+}
+
+func install(args []string) error {
+	currDir, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	file, err := packagefile.FindPackagefile(currDir)
+	if err != nil {
+		return err
+	}
+	pkgs, err := packagefile.Parse(file)
+	if err != nil {
+		return err
+	}
+	for _, pkg := range pkgs {
+		fmt.Println(pkg.Name)
+	}
+	return nil
 }
 
 // func install(args []string) error {
