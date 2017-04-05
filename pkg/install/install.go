@@ -7,6 +7,9 @@ import (
 
 	"os"
 
+	"path/filepath"
+
+	"github.com/gophersgang/gb-dep/pkg/gitdep"
 	"github.com/gophersgang/gb-dep/pkg/packagefile"
 	"github.com/gophersgang/gb-dep/pkg/subcommands"
 )
@@ -44,12 +47,14 @@ func install(args []string) error {
 	if err != nil {
 		return err
 	}
+	root := filepath.Dir(file)
 	pkgs, err := packagefile.Parse(file)
 	if err != nil {
 		return err
 	}
 	for _, pkg := range pkgs {
-		fmt.Println(pkg.Name)
+		d := gitdep.Dep{Pkg: pkg, RootFolder: root}
+		d.Run()
 	}
 	return nil
 }
