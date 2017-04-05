@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gophersgang/gb-dep/pkg/cleanvcs"
 	"github.com/gophersgang/gb-dep/pkg/install"
 	"github.com/gophersgang/gb-dep/pkg/subcommands"
 	"github.com/gophersgang/gb-dep/pkg/update"
@@ -19,6 +20,7 @@ func main() {
 
 	subCmds.Register("update", "Update dependencies", update.New())
 	subCmds.Register("install", "Install dependencies", install.New())
+	subCmds.Register("cleanvcs", "Removes .git and such from vendor folder", cleanvcs.New())
 
 	quiet := flag.Bool("quiet", false, "Silence output")
 	flag.Parse()
