@@ -5,8 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 
 	hjson "github.com/hjson/hjson-go"
+)
+
+var (
+	pgkFile = "package.hjson"
 )
 
 // PackageFile represent a packagefile
@@ -60,6 +66,30 @@ func Parse(path string) ([]Pkg, error) {
 		return nil, err
 	}
 	return pfile.Packages, nil
+}
+
+// FindPackagefile returns the path to package.hjson in the given path
+func FindPackagefile(dir string) (string, error) {
+	found := false
+	foundPath := ""
+	for {
+		file := filepath.Join(dir, pgkFile)
+		if isFile(file) {
+			foundPath = file
+			found = true
+			break
+		}
+		next := filepath.Clean(filepath.Join(dir, ".."))
+		if next == "/" {
+			dir = "/"
+			break
+		}
+		dir = next
+	}
+	if found {
+		return foundPath, nil
+	}
+	return "", errors.New("packagefile not found")
 }
 
 /*
@@ -122,4 +152,11 @@ func checkErr(msg string, err error) {
 		fmt.Println(msg)
 		fmt.Println(err)
 	}
+}
+
+func isFile(p string) bool {
+	if fi, err := os.Stat(filepath.Join(p)); err == nil && !fi.IsDir() {
+		return true
+	}
+	return false
 }
