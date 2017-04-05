@@ -9,13 +9,14 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/gophersgang/gb-dep/pkg/config"
 	"github.com/gophersgang/gb-dep/pkg/packagefile"
 	"github.com/gophersgang/gb-dep/pkg/runner"
 	"github.com/gophersgang/gb-dep/pkg/vcs"
 )
 
 var (
-	vendorFolder = "src/vendor"
+	cfg = config.Config
 )
 
 // Dep is a dependency (package)
@@ -84,7 +85,7 @@ func (d *Dep) cloneArgs(args []string) []string {
 
 // Clone will clone a repo
 func (d *Dep) Clone(args []string) error {
-	vendor, err := filepath.Abs(vendorFolder)
+	vendor, err := cfg.AbsVendorFolder()
 	if err != nil {
 		return err
 	}
@@ -121,7 +122,7 @@ func (d *Dep) Checkout() error {
 	if commitBranchTag == "" {
 		return nil
 	}
-	vendor, err := filepath.Abs(vendorFolder)
+	vendor, err := cfg.AbsVendorFolder()
 	if err != nil {
 		return err
 	}
@@ -170,11 +171,7 @@ func hasGoSource(p string) bool {
 }
 
 func (d *Dep) build(args []string) (err error) {
-	var vendor string
-	vendor, err = filepath.Abs(vendorFolder)
-	if err != nil {
-		return err
-	}
+	vendor, _ := cfg.AbsVendorFolder()
 
 	installCmd := []string{"go", "get"}
 	hasPkg := false
