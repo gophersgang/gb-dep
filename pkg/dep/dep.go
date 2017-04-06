@@ -136,9 +136,22 @@ func (d *Dep) CommitBranchTag() string {
 	return v
 }
 
-func (d *Dep) detectVcsFolder() string {
+func (d *Dep) detectVcsFolder() (string, error) {
+	var path string
+	path, err := gbutils.FindInAncestorPath(d.pkgVendorFolder(), ".git")
+	if err != nil {
+		path, err = gbutils.FindInAncestorPath(d.pkgVendorFolder(), ".hg")
+		if err != nil {
+			path, err = gbutils.FindInAncestorPath(d.pkgVendorFolder(), ".bzr")
+			if err != nil {
+				return "", fmt.Errorf("not VCS folder found for %s", d.pkgVendorFolder())
+			}
+		}
+	}
 
-	return ""
+	d.VcsFolder = path
+
+	return path, nil
 }
 
 func plainRunCmd(dir string, argStr string) error {
