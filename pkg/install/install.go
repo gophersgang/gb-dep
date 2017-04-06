@@ -31,7 +31,6 @@ func (r *cmd) Run(args []string, log *log.Logger) {
 	r.fs.Parse(args)
 	fmt.Println("Running install....")
 	install(args)
-	// runner.Run([]string{"echo", "this"}, runner.Green)
 }
 
 func (r *cmd) Usage() string {
