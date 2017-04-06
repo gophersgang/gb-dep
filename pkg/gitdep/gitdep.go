@@ -132,6 +132,8 @@ func (d *Dep) ensureCacheFresh() error {
 func (d *Dep) ensureCheckout() error {
 	d.Copyvcs()
 	os.Setenv("GOBIN", filepath.Join(d.vendorFolder(), "bin")) // this is important to get binaries
+	os.Setenv("GOPATH", filepath.Join(d.vendorFolder()))       // so it works reliably
+
 	myRun := func(argStr string) {
 		runCmd(d.pkgCheckoutFolder(), strings.Split(argStr, " "), []string{})
 	}

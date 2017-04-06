@@ -24,3 +24,10 @@ cd /tmp/gitplay/cache/immortal.git && git fetch
 cd /tmp/gitplay/src/immortal
 git pull
 git reset --hard <sha>
+
+
+
+
+
+
+######### THIS IS not really feasible....
