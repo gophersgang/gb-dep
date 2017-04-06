@@ -9,7 +9,7 @@ import (
 
 	"path/filepath"
 
-	"github.com/gophersgang/gb-dep/pkg/gitdep"
+	"github.com/gophersgang/gb-dep/pkg/dep"
 	"github.com/gophersgang/gb-dep/pkg/packagefile"
 	"github.com/gophersgang/gb-dep/pkg/subcommands"
 )
@@ -53,7 +53,7 @@ func install(args []string) error {
 		return err
 	}
 	for _, pkg := range pkgs {
-		d := gitdep.Dep{Pkg: pkg, RootFolder: root}
+		d := dep.Dep{Pkg: pkg, RootFolder: root}
 		d.Run()
 	}
 	return nil
