@@ -45,10 +45,10 @@ func checkErr(msg string, err error) {
 
 func install(args []string) error {
 	pkgs, err := packagefile.GimmePackagefile()
-	checkErr("Gimmi packages", err)
+	checkErr("GimmePackagefile", err)
 	pwd, err := os.Getwd()
 	root, err := packagefile.RootDir(pwd)
-	checkErr("-", err)
+	checkErr("RootDir", err)
 	deps := []*dep.Dep{}
 
 	for _, pkg := range pkgs.Packages {

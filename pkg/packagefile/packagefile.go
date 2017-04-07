@@ -39,7 +39,7 @@ var allowedFields = []string{
 	"vcs_type",
 }
 
-// GimmePackagefile is a higlevel function, that hides the implementation details of how you get
+// GimmePackagefile is a high-level function, that hides the implementation details of how you get
 // packages information. It works on current path
 func GimmePackagefile() (structs.PackageFile, error) {
 	emptyPackagefile := structs.PackageFile{}
@@ -47,10 +47,23 @@ func GimmePackagefile() (structs.PackageFile, error) {
 	if err != nil {
 		return emptyPackagefile, err
 	}
+
 	file, err := FindPackagefile(currDir)
 	if err != nil {
 		return emptyPackagefile, err
 	}
+
+	// data from the lockfile
+	if isLockfileUptodate(currDir) {
+		lockfile, err := FindPackageLock(currDir)
+		res, err := Parse(lockfile)
+		if err != nil {
+			return emptyPackagefile, err
+		}
+		return res, nil
+	}
+
+	// data from normal packagefile
 	res, err := Parse(file)
 	if err != nil {
 		return emptyPackagefile, err
@@ -68,14 +81,18 @@ func isLockfileUptodate(dir string) bool {
 		return false
 	}
 	res, err := Parse(lockfile)
-	contentLockfile, err := ioutil.ReadFile(lockfile)
-	fmt.Println(contentLockfile)
-	fmt.Println(res)
-	fmt.Println(file)
-	return false
+	currentMD5, err := gbutils.ComputeMD5(file)
+
+	if res.PackageMD5 != currentMD5 {
+		fmt.Println("*** STALE lockfile ****")
+		return false
+	}
+	fmt.Println("*** UP-TO-DATE lockfile ****")
+
+	return true
 }
 
-// Parse will read a file and return Pgk structs
+// Parse will read a file and return PackageFile struct
 func Parse(path string) (structs.PackageFile, error) {
 	content, err := ioutil.ReadFile(path)
 	checkErr("Could not read "+path, err)

@@ -1,6 +1,9 @@
 package vcs
 
+// alternatives:
+// https://github.com/govend/govend/blob/master/deps/vcs/vcs.go
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"regexp"
@@ -79,6 +82,9 @@ func (vcs *VcsCmd) Sync(p, destination string) error {
 }
 
 func VcsExec(dir string, args ...string) error {
+	fmt.Println("...VcsExec...")
+	fmt.Printf("IN %s\n", dir)
+	fmt.Println(args)
 	cmd := exec.Command(args[0], args[1:]...)
 	cmd.Dir = dir
 	cmd.Stdout = os.Stdout

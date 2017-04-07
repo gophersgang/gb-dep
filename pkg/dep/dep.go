@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/gophersgang/gbdep/pkg/config"
@@ -62,7 +63,32 @@ func (d *Dep) slowInstall() error {
 // this is executed on consecutive runs and should be much faster
 func (d *Dep) installFromCache() error {
 	fmt.Println("Installing from cache...")
+
+	vvv, _ := d.myVcs()
+	vvv.Update(d.VcsFolder)
+	fmt.Println("CHECKOUT " + d.CommitBranchTag())
+	dest := d.checkoutFolder()
+	vvv.Checkout(dest, d.CommitBranchTag())
 	return nil
+}
+
+// this is the folder for the VCS to checkout code to
+// it might not necessary match the full package path!
+// eg: github.com/user/package/subpackage -> github.com/user/package for checkout path
+func (d *Dep) checkoutFolder() string {
+	reg := regexp.MustCompile(fmt.Sprintf(".%s$", d.VcsType))
+	vcsPath, _ := d.absoluteVcsFolder()
+	folder := reg.ReplaceAllString(vcsPath, "")
+	return folder
+}
+
+func (d *Dep) myVcs() (*vcs.VcsCmd, error) {
+	_, err := d.detectVcsFolder()
+	if err != nil {
+		return nil, err
+	}
+	vcstype := vcs.Versions[d.VcsType]
+	return vcstype, nil
 }
 
 func (d *Dep) ensureProperEnv() {
@@ -152,7 +178,23 @@ func (d *Dep) CommitBranchTag() string {
 	if d.Commit != "" {
 		v = d.Commit
 	}
+	if v == "" {
+		return d.defaultBranch()
+	}
 	return v
+}
+
+func (d *Dep) defaultBranch() string {
+	if d.VcsType == "git" {
+		return "master"
+	}
+	if d.VcsType == "hg" {
+		return "default"
+	}
+	if d.VcsType == "bzr" {
+		return "revno:-1"
+	}
+	return ""
 }
 
 func (d *Dep) detectVcsFolder() (string, error) {
