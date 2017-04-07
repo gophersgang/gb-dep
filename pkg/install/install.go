@@ -7,11 +7,14 @@ import (
 
 	"os"
 
-	"path/filepath"
-
+	"github.com/gophersgang/gbdep/pkg/config"
 	"github.com/gophersgang/gbdep/pkg/dep"
 	"github.com/gophersgang/gbdep/pkg/packagefile"
 	"github.com/gophersgang/gbdep/pkg/subcommands"
+)
+
+var (
+	cfg = config.Config
 )
 
 type cmd struct {
@@ -29,7 +32,12 @@ func New() subcommands.Command {
 
 func (r *cmd) Run(args []string, log *log.Logger) {
 	r.fs.Parse(args)
-	fmt.Println("Running install....")
+	cfg.LoggerBackend.SetPrefix("install ")
+	if r.verbose {
+		cfg.SetDebugMode()
+	}
+
+	cfg.Logger.Print("info: Running install....")
 	install(args)
 }
 
@@ -37,97 +45,32 @@ func (r *cmd) Usage() string {
 	return "install --verbose=true"
 }
 
-func install(args []string) error {
-	currDir, err := os.Getwd()
+func checkErr(msg string, err error) {
 	if err != nil {
-		return err
+		fmt.Println(msg)
+		fmt.Println(err)
+		os.Exit(1)
 	}
-	file, err := packagefile.FindPackagefile(currDir)
-	if err != nil {
-		return err
-	}
-	root := filepath.Dir(file)
-	pkgs, err := packagefile.Parse(file)
-	if err != nil {
-		return err
-	}
-	for _, pkg := range pkgs {
-		d := dep.Dep{Pkg: pkg, RootFolder: root}
-		d.Run()
-	}
-	return nil
 }
 
-// func install(args []string) error {
-// 	allGoms, err := parseGomfile("Gomfile")
-// 	if err != nil {
-// 		return err
-// 	}
+func install(args []string) error {
+	pkgs, err := packagefile.GimmePackagefile()
+	checkErr("GimmePackagefile", err)
+	pwd, err := os.Getwd()
+	root, err := packagefile.RootDir(pwd)
+	checkErr("RootDir", err)
+	deps := []*dep.Dep{}
 
-// 	vendor, err := filepath.Abs(vendorFolder)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	_, err = os.Stat(vendor)
-// 	if err != nil {
-// 		err = os.MkdirAll(vendor, 0755)
-// 		if err != nil {
-// 			return err
-// 		}
-// 	}
-// 	err = os.Setenv("GOPATH", vendor)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	err = os.Setenv("GOBIN", filepath.Join(vendor, "bin"))
-// 	if err != nil {
-// 		return err
-// 	}
+	for _, pkg := range pkgs.Packages {
+		a := pkg
+		d := &dep.Dep{Pkg: &a, RootFolder: root}
+		deps = append(deps, d)
+	}
 
-// 	// 1. Filter goms to install
-// 	goms := make([]Gom, 0)
-// 	for _, gom := range allGoms {
-// 		if group, ok := gom.options["group"]; ok {
-// 			if !matchEnv(group) {
-// 				continue
-// 			}
-// 		}
-// 		if goos, ok := gom.options["goos"]; ok {
-// 			if !matchOS(goos) {
-// 				continue
-// 			}
-// 		}
-// 		goms = append(goms, gom)
-// 	}
+	for _, d := range deps {
+		d.Run()
+	}
 
-// 	// 2. Clone the repositories
-// 	for _, gom := range goms {
-// 		err = gom.Clone(args)
-// 		if err != nil {
-// 			return err
-// 		}
-// 	}
-
-// 	// 3. Checkout the commit/branch/tag if needed
-// 	for _, gom := range goms {
-// 		err = gom.Checkout()
-// 		if err != nil {
-// 			return err
-// 		}
-// 	}
-
-// 	// 4. Build and install
-// 	for _, gom := range goms {
-// 		if skipdep, ok := gom.options["skipdep"].(string); ok {
-// 			if skipdep == "true" {
-// 				continue
-// 			}
-// 		}
-// 		err = gom.build(args)
-// 		if err != nil {
-// 			return err
-// 		}
-// 	}
-
-// 	return nil
-// }
+	packagefile.GenerateLockFile(deps)
+	return nil
+}

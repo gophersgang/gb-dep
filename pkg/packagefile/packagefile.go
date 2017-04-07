@@ -5,36 +5,23 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
+	"os"
+	"path/filepath"
 
+	"github.com/gophersgang/gbdep/pkg/config"
+	"github.com/gophersgang/gbdep/pkg/dep"
 	"github.com/gophersgang/gbdep/pkg/gbutils"
+	"github.com/gophersgang/gbdep/pkg/structs"
+
 	hjson "github.com/hjson/hjson-go"
 )
 
 var (
-	pkgFile = "package.hjson"
+	pkgFile  = "package.hjson"
+	md5Field = "package_md5"
+	cfg      = config.Config
 )
-
-// PackageFile represent a packagefile
-type PackageFile struct {
-	Packages []Pkg `json:"packages"`
-}
-
-// Pkg represents a Golang package
-type Pkg struct {
-	Name      string   `json:"name"`                // name of the package
-	Group     []string `json:"group,omitempty"`     // in which groups should this package be installed?
-	Goos      []string `json:"goos,omitempty"`      // what Go OS is supported
-	Insecure  bool     `json:"insecure,omitempty"`  // use insecure protocol for downloading
-	Recursive bool     `json:"recursive,omitempty"` // should we also fetch the vendored packages for a package?
-	Command   string   `json:"command,omitempty"`   // special command to executed for downloading the packag
-	Private   bool     `json:"private,omitempty"`   // is this package private?
-	Skipdep   bool     `json:"skipdep,omitempty"`   // shall we ignore dependencies?
-	Target    string   `json:"target,omitempty"`    // folder to install package to
-	// current status, commit > tag > branch
-	Branch string `json:"branch,omitempty"`
-	Tag    string `json:"tag,omitempty"`
-	Commit string `json:"commit,omitempty"`
-}
 
 var allowedFields = []string{
 	"name",
@@ -50,21 +37,75 @@ var allowedFields = []string{
 	"branch",
 	"tag",
 	"commit",
+	"locked_commit",
+	"vcs_type",
 }
 
-// Parse will read a file and return Pgk structs
-func Parse(path string) ([]Pkg, error) {
+// GimmePackagefile is a high-level function, that hides the implementation details of how you get
+// packages information. It works on current path
+func GimmePackagefile() (structs.PackageFile, error) {
+	emptyPackagefile := structs.PackageFile{}
+	currDir, err := os.Getwd()
+	if err != nil {
+		return emptyPackagefile, err
+	}
+
+	file, err := FindPackagefile(currDir)
+	if err != nil {
+		return emptyPackagefile, err
+	}
+
+	// data from the lockfile
+	if isLockfileUptodate(currDir) {
+		lockfile, err := FindPackageLock(currDir)
+		res, err := Parse(lockfile)
+		if err != nil {
+			return emptyPackagefile, err
+		}
+		return res, nil
+	}
+
+	// data from normal packagefile
+	res, err := Parse(file)
+	if err != nil {
+		return emptyPackagefile, err
+	}
+	return res, nil
+}
+
+func isLockfileUptodate(dir string) bool {
+	file, err := FindPackagefile(dir)
+	if err != nil {
+		log.Fatal("NOPE")
+	}
+	lockfile, err := FindPackageLock(dir)
+	if err != nil {
+		return false
+	}
+	res, err := Parse(lockfile)
+	currentMD5, err := gbutils.ComputeMD5(file)
+
+	if res.PackageMD5 != currentMD5 {
+		cfg.Logger.Print("debug: *** STALE lockfile ****")
+		return false
+	}
+	cfg.Logger.Print("debug: *** UP-TO-DATE lockfile ****")
+	return true
+}
+
+// Parse will read a file and return PackageFile struct
+func Parse(path string) (structs.PackageFile, error) {
 	content, err := ioutil.ReadFile(path)
 	checkErr("Could not read "+path, err)
 	if err != nil {
-		return nil, err
+		return structs.PackageFile{}, err
 	}
 	pfile, err := myunmarshal(content)
 	checkErr("Could not ummarshal "+path, err)
 	if err != nil {
-		return nil, err
+		return structs.PackageFile{}, err
 	}
-	return pfile.Packages, nil
+	return pfile, nil
 }
 
 // FindPackagefile returns the path to package.hjson in the given path
@@ -72,27 +113,67 @@ func FindPackagefile(dir string) (string, error) {
 	return gbutils.FindInAncestorPath(dir, pkgFile)
 }
 
+// FindPackageLock returns the path to package.lock in the given path
+func FindPackageLock(dir string) (string, error) {
+	packFile, err := FindPackagefile(dir)
+	if err != nil {
+		return "", err
+	}
+	lockpath := filepath.Join(filepath.Dir(packFile), "package.lock")
+	if gbutils.IsFile(lockpath) {
+		return lockpath, nil
+	}
+	return "", fmt.Errorf("No lockfile found for %s", dir)
+}
+
+// GenerateLockFile creates a lockfile
+func GenerateLockFile(deps []*dep.Dep) error {
+	currDir, err := os.Getwd()
+	packFile, err := FindPackagefile(currDir)
+	lockpath := filepath.Join(filepath.Dir(packFile), "package.lock")
+
+	this := map[string]interface{}{"packages": deps}
+	md5, err := gbutils.ComputeMD5(packFile)
+	this[md5Field] = md5
+	res, err := json.MarshalIndent(this, "", "    ")
+	if err != nil {
+		return err
+	}
+	ioutil.WriteFile(lockpath, res, 0777)
+	return nil
+}
+
+// RootDir returns the folder where package.hjson is found
+func RootDir(dir string) (string, error) {
+	packFile, err := FindPackagefile(dir)
+	if err != nil {
+		return "", err
+	}
+	root := filepath.Dir(packFile)
+	return root, nil
+}
+
 /*
 	- convert hjson content to json
 	- map it to PackageFile
 */
-func myunmarshal(content []byte) (PackageFile, error) {
+func myunmarshal(content []byte) (structs.PackageFile, error) {
 	var data interface{}
 	hjson.Unmarshal(content, &data)
 	jsonRaw, err := json.Marshal(data)
 	if err != nil {
-		return PackageFile{}, err
+		return structs.PackageFile{}, err
 	}
 
 	err = validatejson(jsonRaw)
 	if err != nil {
-		return PackageFile{}, err
+		return structs.PackageFile{}, err
 	}
 
-	into := PackageFile{}
+	into := structs.PackageFile{}
 	err = json.Unmarshal(jsonRaw, &into)
 	if err != nil {
-		return PackageFile{}, err
+		return structs.PackageFile{}, err
 	}
 	return into, nil
 }
@@ -108,22 +189,13 @@ func validatejson(jsonRaw []byte) error {
 	for _, pkg := range packages {
 		newPkg := pkg.(map[string]interface{})
 		for key := range newPkg {
-			if !contains(allowedFields, key) {
+			if !gbutils.ContainsStr(allowedFields, key) {
 				return errors.New("KEY NOT ALLOWED " + key)
 			}
 		}
 	}
 
 	return nil
-}
-
-func contains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
 }
 
 // just a quick verbose error printer

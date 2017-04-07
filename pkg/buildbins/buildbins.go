@@ -1,20 +1,16 @@
-package cleanvcs
+package buildbins
 
 import (
 	"flag"
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
 	"sync"
-	"time"
-	"unicode/utf8"
 
 	"github.com/gophersgang/gbdep/pkg/config"
 	"github.com/gophersgang/gbdep/pkg/dep"
 	"github.com/gophersgang/gbdep/pkg/packagefile"
 	"github.com/gophersgang/gbdep/pkg/subcommands"
-	"github.com/vbauerster/mpb"
 )
 
 type cmd struct {
@@ -28,7 +24,7 @@ var (
 
 func New() subcommands.Command {
 	r := cmd{}
-	r.fs = flag.NewFlagSet("cleanvcs", flag.ExitOnError)
+	r.fs = flag.NewFlagSet("buildbins", flag.ExitOnError)
 	r.fs.BoolVar(&r.verbose, "verbose", false, "Noisy output")
 
 	return &r
@@ -36,19 +32,19 @@ func New() subcommands.Command {
 
 func (r *cmd) Run(args []string, log *log.Logger) {
 	r.fs.Parse(args)
-	cfg.LoggerBackend.SetPrefix("cleanvcs ")
+	cfg.LoggerBackend.SetPrefix("buildbins ")
 	if r.verbose {
 		cfg.SetDebugMode()
 	}
-	cfg.Logger.Println("Removing VSC folders from vendor...")
-	removevcs(args)
+	cfg.Logger.Println("Build all the vendor binaries / libraries")
+	build(args)
 }
 
 func (r *cmd) Usage() string {
-	return "cleanvcs --verbose=true"
+	return "buildbins --verbose=true"
 }
 
-func removevcs(args []string) error {
+func build(args []string) error {
 	deps()
 	return nil
 }
@@ -64,7 +60,7 @@ func deps() {
 		go func() {
 			defer wg.Done()
 			defer s.Release(1)
-			a.Run()
+			a.BuildBins()
 		}()
 	}
 	wg.Wait()
@@ -85,37 +81,6 @@ func all() []*dep.Dep {
 		deps = append(deps, d)
 	}
 	return deps
-}
-
-func bars() {
-	decor := func(s *mpb.Statistics, myWidth chan<- int, maxWidth <-chan int) string {
-		str := fmt.Sprintf("%3d/%3d", s.Current, s.Total)
-		// send width to Progress' goroutine
-		myWidth <- utf8.RuneCountInString(str)
-		// receive max width
-		max := <-maxWidth
-		return fmt.Sprintf(fmt.Sprintf("%%%ds", max+1), str)
-	}
-
-	totalItem := 100
-	var wg sync.WaitGroup
-	p := mpb.New()
-	wg.Add(3) // add wg delta
-	for i := 0; i < 3; i++ {
-		name := fmt.Sprintf("Bar#%d:", i)
-		bar := p.AddBar(int64(totalItem)).
-			PrependName(name, len(name), 0).
-			PrependFunc(decor)
-		go func() {
-			defer wg.Done()
-			for i := 0; i < totalItem; i++ {
-				bar.Incr(1)
-				time.Sleep(time.Duration(rand.Intn(totalItem)) * time.Millisecond)
-			}
-		}()
-	}
-	wg.Wait() // Wait for goroutines to finish
-	p.Stop()  // Stop mpb's rendering goroutine
 }
 
 // Semaphore controls access to a finite number of resources.
