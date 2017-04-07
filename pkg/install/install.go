@@ -1,16 +1,11 @@
 package install
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 
 	"os"
-
-	"path/filepath"
-
-	"io/ioutil"
 
 	"github.com/gophersgang/gbdep/pkg/dep"
 	"github.com/gophersgang/gbdep/pkg/packagefile"
@@ -40,21 +35,20 @@ func (r *cmd) Usage() string {
 	return "install --verbose=true"
 }
 
-func install(args []string) error {
-	currDir, err := os.Getwd()
+func checkErr(msg string, err error) {
 	if err != nil {
-		return err
+		fmt.Println(msg)
+		fmt.Println(err)
+		os.Exit(1)
 	}
-	file, err := packagefile.FindPackagefile(currDir)
-	if err != nil {
-		return err
-	}
-	root := filepath.Dir(file)
-	pkgs, err := packagefile.Parse(file)
-	if err != nil {
-		return err
-	}
+}
 
+func install(args []string) error {
+	pkgs, err := packagefile.GimmePackages()
+	checkErr("Gimmi packages", err)
+	pwd, err := os.Getwd()
+	root, err := packagefile.RootDir(pwd)
+	checkErr("-", err)
 	deps := []*dep.Dep{}
 
 	for _, pkg := range pkgs {
@@ -67,92 +61,6 @@ func install(args []string) error {
 		d.Run()
 	}
 
-	generateLockFile(deps, file)
+	packagefile.GenerateLockFile(deps)
 	return nil
 }
-
-func generateLockFile(deps []*dep.Dep, packFile string) error {
-	lockpath := filepath.Join(filepath.Dir(packFile), "package.lock")
-
-	this := map[string]interface{}{"packages": deps}
-	res, err := json.MarshalIndent(this, "", "    ")
-	if err != nil {
-		return err
-	}
-	ioutil.WriteFile(lockpath, res, 0777)
-	return nil
-}
-
-// func install(args []string) error {
-// 	allGoms, err := parseGomfile("Gomfile")
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	vendor, err := filepath.Abs(vendorFolder)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	_, err = os.Stat(vendor)
-// 	if err != nil {
-// 		err = os.MkdirAll(vendor, 0755)
-// 		if err != nil {
-// 			return err
-// 		}
-// 	}
-// 	err = os.Setenv("GOPATH", vendor)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	err = os.Setenv("GOBIN", filepath.Join(vendor, "bin"))
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	// 1. Filter goms to install
-// 	goms := make([]Gom, 0)
-// 	for _, gom := range allGoms {
-// 		if group, ok := gom.options["group"]; ok {
-// 			if !matchEnv(group) {
-// 				continue
-// 			}
-// 		}
-// 		if goos, ok := gom.options["goos"]; ok {
-// 			if !matchOS(goos) {
-// 				continue
-// 			}
-// 		}
-// 		goms = append(goms, gom)
-// 	}
-
-// 	// 2. Clone the repositories
-// 	for _, gom := range goms {
-// 		err = gom.Clone(args)
-// 		if err != nil {
-// 			return err
-// 		}
-// 	}
-
-// 	// 3. Checkout the commit/branch/tag if needed
-// 	for _, gom := range goms {
-// 		err = gom.Checkout()
-// 		if err != nil {
-// 			return err
-// 		}
-// 	}
-
-// 	// 4. Build and install
-// 	for _, gom := range goms {
-// 		if skipdep, ok := gom.options["skipdep"].(string); ok {
-// 			if skipdep == "true" {
-// 				continue
-// 			}
-// 		}
-// 		err = gom.build(args)
-// 		if err != nil {
-// 			return err
-// 		}
-// 	}
-
-// 	return nil
-// }
