@@ -58,7 +58,8 @@ func install(args []string) error {
 	deps := []*dep.Dep{}
 
 	for _, pkg := range pkgs {
-		d := &dep.Dep{Pkg: pkg, RootFolder: root}
+		a := pkg
+		d := &dep.Dep{Pkg: &a, RootFolder: root}
 		deps = append(deps, d)
 	}
 
