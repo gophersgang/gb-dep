@@ -64,3 +64,13 @@ func ComputeMD5(filePath string) ([]byte, error) {
 
 	return hash.Sum(result), nil
 }
+
+// ContainsStr checks for existance of a string in a slice
+func ContainsStr(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}

@@ -140,22 +140,13 @@ func validatejson(jsonRaw []byte) error {
 	for _, pkg := range packages {
 		newPkg := pkg.(map[string]interface{})
 		for key := range newPkg {
-			if !contains(allowedFields, key) {
+			if !gbutils.ContainsStr(allowedFields, key) {
 				return errors.New("KEY NOT ALLOWED " + key)
 			}
 		}
 	}
 
 	return nil
-}
-
-func contains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
 }
 
 // just a quick verbose error printer
