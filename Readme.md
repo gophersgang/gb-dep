@@ -3,7 +3,8 @@
 Reliable, fast dependency management for [GB](getgb.io)
 
 ## Features
-  - uses package.json / package.hjson file (a very simple version of the Node.js package.json)
+  - `hjson.org` (Human JSON) as package format
+  - package.hjson file (a very simple version of the Node.js package.json)
   - supports parallel installation of packages
   - installs binaries in vendor/bin folder
 
@@ -22,10 +23,10 @@ Create a package.hjson file with your packages like:
 ```
 packages: [
   // default packages
-  {name: "github.com/gorilla/mux", tag: "v1.3.0"}
+  { name: "github.com/gorilla/mux", tag: "v1.3.0" }
 
   // dev packages
-  { name: "github.com/mattn/gover", commit: "x8948594854" , group: ["development"], goos: [ "windows", "linux", "darwin" ]}
+  { name: "github.com/mattn/gover", commit: "x8948594854" , group: ["development"], goos: [ "windows", "linux", "darwin" ] }
 
   // test packages
   { name: "github.com/mattn/gom", commit: "x8948594854", group: ["test"], goos: [ "windows", "linux", "darwin" ] }
