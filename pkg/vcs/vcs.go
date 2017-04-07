@@ -33,6 +33,12 @@ var (
 		[]string{"bzr", "log", "-r-1", "--line"},
 		"^([0-9]+)",
 	}
+
+	Versions = map[string]*VcsCmd{
+		"hg":  HG,
+		"git": GIT,
+		"bzr": BZR,
+	}
 )
 
 func (vcs *VcsCmd) Checkout(p, destination string) error {
