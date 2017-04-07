@@ -9,7 +9,6 @@ Reliable, fast dependency management for [GB](getgb.io)
 
 ## Non-Features
   - support Golang < 1.8
-  - support all version control systems (ONLY GIT for now)
   - automatic resolution for possible major / minor / patch requirements (you do this by manually)
 
 
