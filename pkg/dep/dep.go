@@ -68,6 +68,7 @@ func (d *Dep) installFromCache() error {
 	vvv.Update(d.VcsFolder)
 	fmt.Println("CHECKOUT " + d.CommitBranchTag())
 	dest := d.checkoutFolder()
+	vvv.Update(dest)
 	vvv.Checkout(dest, d.CommitBranchTag())
 	return nil
 }
