@@ -41,6 +41,21 @@ func (d *Dep) Run() error {
 	return nil
 }
 
+// BuildBins builds binaries / libraries
+func (d *Dep) BuildBins() error {
+	d.ensureProperEnv()
+	plainRunCmd(d.pkgVendorFolder(), "go install ./...")
+	return nil
+}
+
+// CleanVCS removes VCS folder, so you can commit vendored packages to version controll
+func (d *Dep) CleanVCS() error {
+	d.ensureProperEnv()
+	path, _ := d.absoluteVcsFolder()
+	cfg.Logger.Printf("Removing %s\n", path)
+	return nil
+}
+
 func (d *Dep) ensureInstalled() error {
 	d.detectVcsFolder()
 	if !d.cacheExists() {
@@ -57,13 +72,6 @@ func (d *Dep) slowInstall() error {
 	plainRunCmd(d.vendorFolder(), fmt.Sprintf("go get -u %s", d.Name))
 	plainRunCmd(d.pkgVendorFolder(), "go get -u ./...")
 	d.BuildBins()
-	return nil
-}
-
-// BuildBins builds binaries / libraries
-func (d *Dep) BuildBins() error {
-	d.ensureProperEnv()
-	plainRunCmd(d.pkgVendorFolder(), "go install ./...")
 	return nil
 }
 
