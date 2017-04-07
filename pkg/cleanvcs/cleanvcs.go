@@ -35,9 +35,12 @@ func New() subcommands.Command {
 }
 
 func (r *cmd) Run(args []string, log *log.Logger) {
-	cfg.LoggerBackend.SetPrefix("cleanvcs ")
 	r.fs.Parse(args)
-	fmt.Println("Removing VSC folders from vendor...")
+	cfg.LoggerBackend.SetPrefix("cleanvcs ")
+	if r.verbose {
+		cfg.SetDebugMode()
+	}
+	cfg.Logger.Println("Removing VSC folders from vendor...")
 	removevcs(args)
 }
 

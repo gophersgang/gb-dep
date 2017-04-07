@@ -30,6 +30,10 @@ func (cfg *config) AbsVendorFolder() (string, error) {
 	return vendor, nil
 }
 
+func (cfg *config) SetDebugMode() {
+	cfg.LoggerBackend.SetMinLevel(colog.LDebug)
+}
+
 func init() {
 	cl := colog.NewCoLog(os.Stdout, "install ", log.LstdFlags)
 	cl.SetMinLevel(colog.LInfo)
