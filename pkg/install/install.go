@@ -1,6 +1,7 @@
 package install
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -8,6 +9,8 @@ import (
 	"os"
 
 	"path/filepath"
+
+	"io/ioutil"
 
 	"github.com/gophersgang/gbdep/pkg/dep"
 	"github.com/gophersgang/gbdep/pkg/packagefile"
@@ -51,10 +54,31 @@ func install(args []string) error {
 	if err != nil {
 		return err
 	}
+
+	deps := []*dep.Dep{}
+
 	for _, pkg := range pkgs {
-		d := dep.Dep{Pkg: pkg, RootFolder: root}
+		d := &dep.Dep{Pkg: pkg, RootFolder: root}
+		deps = append(deps, d)
+	}
+
+	for _, d := range deps {
 		d.Run()
 	}
+
+	generateLockFile(deps, file)
+	return nil
+}
+
+func generateLockFile(deps []*dep.Dep, packFile string) error {
+	lockpath := filepath.Join(filepath.Dir(packFile), "package.lock")
+
+	this := map[string]interface{}{"packages": deps}
+	res, err := json.MarshalIndent(this, "", "    ")
+	if err != nil {
+		return err
+	}
+	ioutil.WriteFile(lockpath, res, 0777)
 	return nil
 }
 
