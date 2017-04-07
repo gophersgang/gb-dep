@@ -4,7 +4,8 @@ package structs
 
 // PackageFile represent a packagefile
 type PackageFile struct {
-	Packages []Pkg `json:"packages"`
+	Packages   []Pkg  `json:"packages"`
+	PackageMD5 string `json:"package_md5"`
 }
 
 // Pkg represents a Golang package
