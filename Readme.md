@@ -1,6 +1,6 @@
 # GB Dep
 
-Reliable, fast dependency management for [GB](getgb.io)
+Reliable, fast dependency management for [GB](https://getgb.io/)
 
 ## Features
   - `hjson.org` (Human JSON) as package format
