@@ -35,6 +35,7 @@ func (d *Dep) Run() error {
 }
 
 func (d *Dep) ensureInstalled() error {
+	d.detectVcsFolder()
 	if !d.cacheExists() {
 		d.slowInstall()
 		return d.Copyvcs()
@@ -73,19 +74,22 @@ func (d *Dep) ensureBasefolders() error {
 // Copyvcs creates .GIT folder in vendor, for installation and such
 // run before commiting
 func (d *Dep) Copyvcs() error {
-	if d.cacheExists() {
+	path, err := d.detectVcsFolder()
+	if err != nil {
+		return err
+	}
+	fromPath := filepath.Join(d.vendorFolder(), "src", path)
+	toPath := filepath.Join(d.cacheFolder(), path)
+	// TODO: think about proper update for cached folders
+	if gbutils.PathExist(toPath) {
 		return nil
 	}
-	copyCmd := fmt.Sprintf("cp -r %s/.git %s/.git", d.pkgVendorFolder(), d.pkgCachedFolder())
+	copyCmd := fmt.Sprintf("cp -r %s %s", fromPath, toPath)
 	return plainRunCmd(d.vendorFolder(), copyCmd)
 }
 
-// func (d *Dep) vcsFolderCached() bool {
-// 	return fileExist(d.pkgCachedFolder())
-// }
-
 func (d *Dep) cacheExists() bool {
-	return gbutils.PathExist(filepath.Join(d.pkgCachedFolder(), ".git"))
+	return gbutils.PathExist(filepath.Join(d.cacheFolder(), d.VcsFolder))
 }
 
 func (d *Dep) pkgCachedFolder() string {
@@ -148,9 +152,10 @@ func (d *Dep) detectVcsFolder() (string, error) {
 			}
 		}
 	}
-
+	replaceStr := filepath.Join(d.vendorFolder(), "src")
+	path = strings.Replace(path, replaceStr, "", 1)
 	d.VcsFolder = path
-
+	fmt.Printf("GIT FOLDER: %s\n", path)
 	return path, nil
 }
 
