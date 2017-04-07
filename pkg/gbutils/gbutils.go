@@ -1,7 +1,9 @@
 package gbutils
 
 import (
+	"crypto/md5"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 )
@@ -44,4 +46,21 @@ func IsFile(path string) bool {
 		return true
 	}
 	return false
+}
+
+// ComputeMD5 computes ... well.. md5 checksum of a file
+func ComputeMD5(filePath string) ([]byte, error) {
+	var result []byte
+	file, err := os.Open(filePath)
+	if err != nil {
+		return result, err
+	}
+	defer file.Close()
+
+	hash := md5.New()
+	if _, err := io.Copy(hash, file); err != nil {
+		return result, err
+	}
+
+	return hash.Sum(result), nil
 }
