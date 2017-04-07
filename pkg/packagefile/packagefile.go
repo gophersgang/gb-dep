@@ -31,9 +31,11 @@ type Pkg struct {
 	Skipdep   bool     `json:"skipdep,omitempty"`   // shall we ignore dependencies?
 	Target    string   `json:"target,omitempty"`    // folder to install package to
 	// current status, commit > tag > branch
-	Branch string `json:"branch,omitempty"`
-	Tag    string `json:"tag,omitempty"`
-	Commit string `json:"commit,omitempty"`
+	Branch       string `json:"branch,omitempty"`
+	Tag          string `json:"tag,omitempty"`
+	Commit       string `json:"commit,omitempty"`
+	LockedCommit string `json:"locked_commit,omitempty"`
+	VcsType      string `json:"vcs_type"`
 }
 
 var allowedFields = []string{
@@ -50,6 +52,8 @@ var allowedFields = []string{
 	"branch",
 	"tag",
 	"commit",
+	"locked_commit",
+	"vcs_type",
 }
 
 // Parse will read a file and return Pgk structs
