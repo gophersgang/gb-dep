@@ -5,12 +5,6 @@ import (
 	"fmt"
 	"log"
 
-	"os"
-
-	"path/filepath"
-
-	"github.com/gophersgang/gbdep/pkg/gitdep"
-	"github.com/gophersgang/gbdep/pkg/packagefile"
 	"github.com/gophersgang/gbdep/pkg/subcommands"
 )
 
@@ -38,22 +32,5 @@ func (r *cmd) Usage() string {
 }
 
 func removevcs(args []string) error {
-	currDir, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-	file, err := packagefile.FindPackagefile(currDir)
-	if err != nil {
-		return err
-	}
-	root := filepath.Dir(file)
-	pkgs, err := packagefile.Parse(file)
-	if err != nil {
-		return err
-	}
-	for _, pkg := range pkgs {
-		d := gitdep.Dep{Pkg: pkg, RootFolder: root}
-		d.Removevcs()
-	}
 	return nil
 }
