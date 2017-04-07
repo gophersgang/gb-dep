@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/gophersgang/gb-dep/pkg/packagefile"
+	"github.com/gophersgang/gbdep/pkg/packagefile"
 )
 
 func tempGomfile(content string) (string, error) {

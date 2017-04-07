@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/gophersgang/gb-dep/pkg/gbutils"
+	"github.com/gophersgang/gbdep/pkg/gbutils"
 	hjson "github.com/hjson/hjson-go"
 )
 

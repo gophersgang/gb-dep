@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gophersgang/gb-dep/pkg/subcommands"
+	"github.com/gophersgang/gbdep/pkg/subcommands"
 )
 
 type cmd struct {

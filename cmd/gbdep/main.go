@@ -8,15 +8,15 @@ import (
 	"os"
 	"time"
 
-	"github.com/gophersgang/gb-dep/pkg/cleanvcs"
-	"github.com/gophersgang/gb-dep/pkg/install"
-	"github.com/gophersgang/gb-dep/pkg/subcommands"
-	"github.com/gophersgang/gb-dep/pkg/update"
+	"github.com/gophersgang/gbdep/pkg/cleanvcs"
+	"github.com/gophersgang/gbdep/pkg/install"
+	"github.com/gophersgang/gbdep/pkg/subcommands"
+	"github.com/gophersgang/gbdep/pkg/update"
 )
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	subCmds := subcommands.New(os.Args[0], "A CLI GB-dep")
+	subCmds := subcommands.New(os.Args[0], "A CLI gbdep")
 
 	subCmds.Register("update", "Update dependencies", update.New())
 	subCmds.Register("install", "Install dependencies", install.New())

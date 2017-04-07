@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"testing"
 
-	"github.com/gophersgang/gb-dep/pkg/packagefile"
+	"github.com/gophersgang/gbdep/pkg/packagefile"
 )
 
 func execCommands(dir string, args ...string) error {

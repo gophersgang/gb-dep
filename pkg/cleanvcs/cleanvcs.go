@@ -9,9 +9,9 @@ import (
 
 	"path/filepath"
 
-	"github.com/gophersgang/gb-dep/pkg/gitdep"
-	"github.com/gophersgang/gb-dep/pkg/packagefile"
-	"github.com/gophersgang/gb-dep/pkg/subcommands"
+	"github.com/gophersgang/gbdep/pkg/gitdep"
+	"github.com/gophersgang/gbdep/pkg/packagefile"
+	"github.com/gophersgang/gbdep/pkg/subcommands"
 )
 
 type cmd struct {

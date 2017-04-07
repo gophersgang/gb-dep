@@ -9,10 +9,10 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/gophersgang/gb-dep/pkg/config"
-	"github.com/gophersgang/gb-dep/pkg/packagefile"
-	"github.com/gophersgang/gb-dep/pkg/runner"
-	"github.com/gophersgang/gb-dep/pkg/vcs"
+	"github.com/gophersgang/gbdep/pkg/config"
+	"github.com/gophersgang/gbdep/pkg/packagefile"
+	"github.com/gophersgang/gbdep/pkg/runner"
+	"github.com/gophersgang/gbdep/pkg/vcs"
 )
 
 var (

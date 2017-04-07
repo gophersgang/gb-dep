@@ -33,13 +33,13 @@ packages: [
 ]
 ```
 
-    $ gb-dep install
+    $ gbdep install
 
 Installs packages and creates a package.lock file. Next time you run this command, it will take the versions from the package.lock file.
 
 package.lock is tied to the the package.json via a checksum value, that forces package.lock update on package.hjson changes
 
-    $ gb-dep update
+    $ gbdep update
 
 forces package.lock update, this will update the not-fixed packages to latest sha on master
 
