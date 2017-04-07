@@ -57,6 +57,7 @@ In case you have deleted vendor/bin folder, this will recompile all the binaries
 ## Planned Features
 
   - [ ] Installation from special repos (in case of forks)
+  - [ ] Skip binaries for some packages
 
 ## Thx
   - https://github.com/mattn/gom - for some code snippets
