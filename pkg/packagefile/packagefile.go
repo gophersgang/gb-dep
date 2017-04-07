@@ -6,7 +6,12 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"github.com/gophersgang/gb-dep/pkg/gbutils"
 	hjson "github.com/hjson/hjson-go"
+)
+
+var (
+	pkgFile = "package.hjson"
 )
 
 // PackageFile represent a packagefile
@@ -60,6 +65,11 @@ func Parse(path string) ([]Pkg, error) {
 		return nil, err
 	}
 	return pfile.Packages, nil
+}
+
+// FindPackagefile returns the path to package.hjson in the given path
+func FindPackagefile(dir string) (string, error) {
+	return gbutils.FindInAncestorPath(dir, pkgFile)
 }
 
 /*
