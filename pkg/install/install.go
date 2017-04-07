@@ -2,11 +2,9 @@ package install
 
 import (
 	"flag"
-	"fmt"
 	"log"
 
-	"os"
-
+	"github.com/gophersgang/gbdep/pkg/cmdcommon"
 	"github.com/gophersgang/gbdep/pkg/config"
 	"github.com/gophersgang/gbdep/pkg/dep"
 	"github.com/gophersgang/gbdep/pkg/packagefile"
@@ -30,47 +28,25 @@ func New() subcommands.Command {
 	return &r
 }
 
+func (r *cmd) Usage() string {
+	return "install --verbose=true"
+}
+
 func (r *cmd) Run(args []string, log *log.Logger) {
 	r.fs.Parse(args)
 	cfg.LoggerBackend.SetPrefix("install ")
 	if r.verbose {
 		cfg.SetDebugMode()
 	}
-
-	cfg.Logger.Print("info: Running install....")
-	install(args)
+	cfg.Logger.Println("Installing...")
+	realcmd(args)
 }
 
-func (r *cmd) Usage() string {
-	return "install --verbose=true"
-}
-
-func checkErr(msg string, err error) {
-	if err != nil {
-		fmt.Println(msg)
-		fmt.Println(err)
-		os.Exit(1)
-	}
-}
-
-func install(args []string) error {
-	pkgs, err := packagefile.GimmePackagefile()
-	checkErr("GimmePackagefile", err)
-	pwd, err := os.Getwd()
-	root, err := packagefile.RootDir(pwd)
-	checkErr("RootDir", err)
-	deps := []*dep.Dep{}
-
-	for _, pkg := range pkgs.Packages {
-		a := pkg
-		d := &dep.Dep{Pkg: &a, RootFolder: root}
-		deps = append(deps, d)
-	}
-
-	for _, d := range deps {
+func realcmd(args []string) error {
+	deps := cmdcommon.CurrentDeps()
+	cmdcommon.RunConcurrently(deps, 5, func(d *dep.Dep) {
 		d.Run()
-	}
-
+	})
 	packagefile.GenerateLockFile(deps)
 	return nil
 }
