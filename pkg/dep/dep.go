@@ -9,7 +9,7 @@ import (
 
 	"github.com/gophersgang/gbdep/pkg/config"
 	"github.com/gophersgang/gbdep/pkg/gbutils"
-	"github.com/gophersgang/gbdep/pkg/packagefile"
+	. "github.com/gophersgang/gbdep/pkg/structs"
 	"github.com/gophersgang/gbdep/pkg/vcs"
 )
 
@@ -19,7 +19,7 @@ var (
 
 // Dep is a package
 type Dep struct {
-	*packagefile.Pkg
+	*Pkg
 	RootFolder string `json:"-"` // the root folder
 
 	// the subpath for GIT / HG folder, that might not match the full package path,
