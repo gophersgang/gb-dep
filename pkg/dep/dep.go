@@ -56,6 +56,13 @@ func (d *Dep) CleanVCS() error {
 	return nil
 }
 
+// Update will update all non-fixes packages to most recent version
+func (d *Dep) Update() error {
+	d.ensureProperEnv()
+	cfg.Logger.Printf("info: Updating %s\n", d.Name)
+	return nil
+}
+
 func (d *Dep) ensureInstalled() error {
 	d.detectVcsFolder()
 	if !d.cacheExists() {
