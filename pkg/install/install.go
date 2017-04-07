@@ -7,9 +7,14 @@ import (
 
 	"os"
 
+	"github.com/gophersgang/gbdep/pkg/config"
 	"github.com/gophersgang/gbdep/pkg/dep"
 	"github.com/gophersgang/gbdep/pkg/packagefile"
 	"github.com/gophersgang/gbdep/pkg/subcommands"
+)
+
+var (
+	cfg = config.Config
 )
 
 type cmd struct {
@@ -27,7 +32,7 @@ func New() subcommands.Command {
 
 func (r *cmd) Run(args []string, log *log.Logger) {
 	r.fs.Parse(args)
-	fmt.Println("Running install....")
+	cfg.Logger.Print("info: Running install....")
 	install(args)
 }
 

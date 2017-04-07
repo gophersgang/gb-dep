@@ -3,11 +3,12 @@ package vcs
 // alternatives:
 // https://github.com/govend/govend/blob/master/deps/vcs/vcs.go
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"regexp"
 	"strings"
+
+	"github.com/gophersgang/gbdep/pkg/config"
 )
 
 type VcsCmd struct {
@@ -18,7 +19,8 @@ type VcsCmd struct {
 }
 
 var (
-	HG = &VcsCmd{
+	cfg = config.Config
+	HG  = &VcsCmd{
 		[]string{"hg", "update"},
 		[]string{"hg", "pull"},
 		[]string{"hg", "id", "-i"},
@@ -82,9 +84,9 @@ func (vcs *VcsCmd) Sync(p, destination string) error {
 }
 
 func VcsExec(dir string, args ...string) error {
-	fmt.Println("...VcsExec...")
-	fmt.Printf("IN %s\n", dir)
-	fmt.Println(args)
+	cfg.Logger.Println("...VcsExec...")
+	cfg.Logger.Printf("IN %s\n", dir)
+	cfg.Logger.Print(args)
 	cmd := exec.Command(args[0], args[1:]...)
 	cmd.Dir = dir
 	cmd.Stdout = os.Stdout

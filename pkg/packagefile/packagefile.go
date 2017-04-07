@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/gophersgang/gbdep/pkg/config"
 	"github.com/gophersgang/gbdep/pkg/dep"
 	"github.com/gophersgang/gbdep/pkg/gbutils"
 	"github.com/gophersgang/gbdep/pkg/structs"
@@ -19,6 +20,7 @@ import (
 var (
 	pkgFile  = "package.hjson"
 	md5Field = "package_md5"
+	cfg      = config.Config
 )
 
 var allowedFields = []string{
@@ -84,11 +86,10 @@ func isLockfileUptodate(dir string) bool {
 	currentMD5, err := gbutils.ComputeMD5(file)
 
 	if res.PackageMD5 != currentMD5 {
-		fmt.Println("*** STALE lockfile ****")
+		cfg.Logger.Print("debug: *** STALE lockfile ****")
 		return false
 	}
-	fmt.Println("*** UP-TO-DATE lockfile ****")
-
+	cfg.Logger.Print("debug: *** UP-TO-DATE lockfile ****")
 	return true
 }
 

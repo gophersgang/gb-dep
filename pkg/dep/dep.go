@@ -62,11 +62,10 @@ func (d *Dep) slowInstall() error {
 
 // this is executed on consecutive runs and should be much faster
 func (d *Dep) installFromCache() error {
-	fmt.Println("Installing from cache...")
-
+	cfg.Logger.Print("Installing from cache...")
 	vvv, _ := d.myVcs()
 	vvv.Update(d.VcsFolder)
-	fmt.Println("CHECKOUT " + d.CommitBranchTag())
+	cfg.Logger.Print("CHECKOUT " + d.CommitBranchTag())
 	dest := d.checkoutFolder()
 	vvv.Update(dest)
 	vvv.Checkout(dest, d.CommitBranchTag())
@@ -219,7 +218,7 @@ func (d *Dep) detectVcsFolder() (string, error) {
 	ext := filepath.Ext(path)
 	d.VcsFolder = path
 	d.VcsType = strings.Replace(ext, ".", "", 1)
-	fmt.Printf("VCS FOLDER: %s\n", path)
+	cfg.Logger.Printf("debug: VCS FOLDER: %s\n", path)
 	return path, nil
 }
 
@@ -237,7 +236,7 @@ func (d *Dep) detectFinalSha() error {
 	}
 
 	d.LockedCommit = rev
-	fmt.Printf("FINAL SHA: %s\n", rev)
+	cfg.Logger.Printf("FINAL SHA: %s\n", rev)
 	return nil
 }
 
@@ -251,8 +250,8 @@ func runCmd(dir string, args []string, cmdEnv []string) error {
 	for _, str := range cmdEnv {
 		env = append(env, str)
 	}
-	fmt.Println(fmt.Sprintf("in %s running", dir))
-	fmt.Println(args)
+	cfg.Logger.Printf("debug: in %s running", dir)
+	cfg.Logger.Println(args)
 	cmd := exec.Command(args[0], args[1:]...)
 	cmd.Env = env
 	cmd.Dir = dir
