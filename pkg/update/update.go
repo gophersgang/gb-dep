@@ -29,38 +29,3 @@ func (r *cmd) Run(args []string, log *log.Logger) {
 func (r *cmd) Usage() string {
 	return "update --verbose=true"
 }
-
-// func update() error {
-// 	goms, err := parseGomfile("Gomfile")
-// 	if err != nil {
-// 		return err
-// 	}
-// 	vendor, err := filepath.Abs(vendorFolder)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	err = os.Setenv("GOPATH", vendor)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	err = os.Setenv("GOBIN", filepath.Join(vendor, "bin"))
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	for _, gom := range goms {
-// 		err = gom.Update()
-// 		if err != nil {
-// 			return err
-// 		}
-// 		vcs, _, p := vcsScan(vendorSrc(vendor), gom.name)
-// 		if vcs != nil {
-// 			rev, err := vcs.Revision(p)
-// 			if err == nil && rev != "" {
-// 				gom.options["commit"] = rev
-// 			}
-// 		}
-// 	}
-
-// 	return writeGomfile("Gomfile", goms)
-// }
