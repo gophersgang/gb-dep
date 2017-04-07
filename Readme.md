@@ -19,7 +19,7 @@ I want to manage my projects with GB, but the GB vendoring tool works only with 
 ## Installation
 
 
-  $ go get -u github.com/gophersgang/gbdep/...
+    $ go get -u github.com/gophersgang/gbdep/...
 
 
 ## Usage
