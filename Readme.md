@@ -3,7 +3,7 @@
 Reliable, fast dependency management for [GB](https://getgb.io/)
 
 ## Features
-  - `hjson.org` (Human JSON) as package format
+  - [hjson.org](http://hjson.org/) (Human JSON) as package format
   - package.hjson file (a very simple version of the Node.js package.json)
   - supports parallel installation of packages
   - installs binaries in vendor/bin folder
