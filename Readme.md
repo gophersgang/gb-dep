@@ -54,6 +54,10 @@ forces package.lock update, this will update the not-fixed packages to latest sh
 In case you have deleted vendor/bin folder, this will recompile all the binaries. The install command does it only on first pass, to not slow down the operation without much gain.
 
 
+## Planned Features
+
+  - [ ] Installation from special repos (in case of forks)
+
 ## Thx
   - https://github.com/mattn/gom - for some code snippets
   - https://github.com/apoydence/loggr - for subcommands handling logic
@@ -61,3 +65,5 @@ In case you have deleted vendor/bin folder, this will recompile all the binaries
 ## License
 
 MIT licensed. See the LICENSE file for details.
+
+
