@@ -37,7 +37,8 @@ func TestParse(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	pkgs, err := packagefile.Parse(filename)
+	packagef, err := packagefile.Parse(filename)
+	pkgs := packagef.Packages
 	fmt.Println(pkgs)
 	expected := "github.com/mattn/gover"
 	if pkgs[0].Name != expected {
@@ -65,7 +66,8 @@ func TestFieldValidation(t *testing.T) {
 }
 
 func TestRealFile(t *testing.T) {
-	pkgs, _ := packagefile.Parse("assets/package.hjson")
+	pkgpackagef, _ := packagefile.Parse("assets/package.hjson")
+	pkgs := pkgpackagef.Packages
 	expected := "github.com/mattn/gover"
 	if pkgs[0].Name != expected {
 		t.Fatalf("Expected %v, but was %v:", expected, pkgs[0].Name)
