@@ -31,6 +31,7 @@ func New() subcommands.Command {
 }
 
 func (r *cmd) Run(args []string, log *log.Logger) {
+	cfg.LoggerBackend.SetPrefix("install ")
 	r.fs.Parse(args)
 	cfg.Logger.Print("info: Running install....")
 	install(args)

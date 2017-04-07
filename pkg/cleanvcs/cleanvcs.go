@@ -10,6 +10,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/gophersgang/gbdep/pkg/config"
 	"github.com/gophersgang/gbdep/pkg/dep"
 	"github.com/gophersgang/gbdep/pkg/packagefile"
 	"github.com/gophersgang/gbdep/pkg/subcommands"
@@ -21,6 +22,10 @@ type cmd struct {
 	verbose bool
 }
 
+var (
+	cfg = config.Config
+)
+
 func New() subcommands.Command {
 	r := cmd{}
 	r.fs = flag.NewFlagSet("cleanvcs", flag.ExitOnError)
@@ -30,6 +35,7 @@ func New() subcommands.Command {
 }
 
 func (r *cmd) Run(args []string, log *log.Logger) {
+	cfg.LoggerBackend.SetPrefix("cleanvcs ")
 	r.fs.Parse(args)
 	fmt.Println("Removing VSC folders from vendor...")
 	removevcs(args)

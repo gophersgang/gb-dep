@@ -17,8 +17,9 @@ var (
 )
 
 type config struct {
-	VendorFolder string
-	Logger       *log.Logger
+	VendorFolder  string
+	Logger        *log.Logger
+	LoggerBackend *colog.CoLog
 }
 
 func (cfg *config) AbsVendorFolder() (string, error) {
@@ -36,4 +37,5 @@ func init() {
 	//cl.SetDefaultLevel(colog.LWarning)
 	logger := cl.NewLogger()
 	Config.Logger = logger
+	Config.LoggerBackend = cl
 }
