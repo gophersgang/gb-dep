@@ -44,6 +44,10 @@ package.lock is tied to the the package.json via a checksum value, that forces p
 forces package.lock update, this will update the not-fixed packages to latest sha on master
 
 
+    $ gbdep buildbins
+
+In case you have deleted vendor/bin folder, this will recompile all the binaries. The install command does it only on first pass, to not slow down the operation without much gain.
+
 
 ## Thx
   - https://github.com/mattn/gom - for some code snippets

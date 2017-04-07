@@ -56,6 +56,13 @@ func (d *Dep) ensureInstalled() error {
 func (d *Dep) slowInstall() error {
 	plainRunCmd(d.vendorFolder(), fmt.Sprintf("go get -u %s", d.Name))
 	plainRunCmd(d.pkgVendorFolder(), "go get -u ./...")
+	d.BuildBins()
+	return nil
+}
+
+// BuildBins builds binaries / libraries
+func (d *Dep) BuildBins() error {
+	d.ensureProperEnv()
 	plainRunCmd(d.pkgVendorFolder(), "go install ./...")
 	return nil
 }
