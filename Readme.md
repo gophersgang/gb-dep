@@ -16,6 +16,11 @@ Reliable, fast dependency management for [GB](https://getgb.io/)
 ## Why?
 I want to manage my projects with GB, but the GB vendoring tool works only with GIT SHAs. All other verndoring libraries in Golang do too much, are slowish, have lots of features / bugs. I want something very simple.
 
+## Installation
+
+
+  $ go get -u github.com/gophersgang/gbdep/...
+
 
 ## Usage
 Create a package.hjson file with your packages like:
