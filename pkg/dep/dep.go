@@ -10,6 +10,7 @@ import (
 	"github.com/gophersgang/gbdep/pkg/config"
 	"github.com/gophersgang/gbdep/pkg/gbutils"
 	"github.com/gophersgang/gbdep/pkg/packagefile"
+	"github.com/gophersgang/gbdep/pkg/vcs"
 )
 
 var (
@@ -18,11 +19,12 @@ var (
 
 // Dep is a package
 type Dep struct {
-	packagefile.Pkg
-	RootFolder string // the root folder
+	*packagefile.Pkg
+	RootFolder string `json:"-"` // the root folder
+
 	// the subpath for GIT / HG folder, that might not match the full package path,
 	// eg. golang.org/x/crypto/ssh -> golang.org/x/crypto/.git
-	VcsFolder string
+	VcsFolder string `json:"-"`
 }
 
 // Run knows what to do
@@ -31,6 +33,10 @@ func (d *Dep) Run() error {
 	d.ensureProperEnv()
 	d.ensureBasefolders()
 	d.ensureInstalled()
+	err := d.detectFinalSha()
+	if err != nil {
+		fmt.Println(err)
+	}
 	return nil
 }
 
@@ -88,6 +94,15 @@ func (d *Dep) Copyvcs() error {
 	return plainRunCmd(d.vendorFolder(), copyCmd)
 }
 
+func (d *Dep) absoluteVcsFolder() (string, error) {
+	path, err := d.detectVcsFolder()
+	if err != nil {
+		return "", err
+	}
+	fromPath := filepath.Join(d.vendorFolder(), "src", path)
+	return fromPath, nil
+}
+
 func (d *Dep) cacheExists() bool {
 	return gbutils.PathExist(filepath.Join(d.cacheFolder(), d.VcsFolder))
 }
@@ -141,6 +156,10 @@ func (d *Dep) CommitBranchTag() string {
 }
 
 func (d *Dep) detectVcsFolder() (string, error) {
+	if d.VcsFolder != "" {
+		return d.VcsFolder, nil
+	}
+
 	var path string
 	path, err := gbutils.FindInAncestorPath(d.pkgVendorFolder(), ".git")
 	if err != nil {
@@ -154,9 +173,29 @@ func (d *Dep) detectVcsFolder() (string, error) {
 	}
 	replaceStr := filepath.Join(d.vendorFolder(), "src")
 	path = strings.Replace(path, replaceStr, "", 1)
+	ext := filepath.Ext(path)
 	d.VcsFolder = path
-	fmt.Printf("GIT FOLDER: %s\n", path)
+	d.VcsType = strings.Replace(ext, ".", "", 1)
+	fmt.Printf("VCS FOLDER: %s\n", path)
 	return path, nil
+}
+
+func (d *Dep) detectFinalSha() error {
+	_, err := d.detectVcsFolder()
+	if err != nil {
+		return err
+	}
+	vcstype := vcs.Versions[d.VcsType]
+
+	vcsPath, err := d.absoluteVcsFolder()
+	rev, err := vcstype.Revision(vcsPath)
+	if err != nil {
+		return err
+	}
+
+	d.LockedCommit = rev
+	fmt.Printf("FINAL SHA: %s\n", rev)
+	return nil
 }
 
 func plainRunCmd(dir string, argStr string) error {
