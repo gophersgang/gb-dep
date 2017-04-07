@@ -1,4 +1,4 @@
-package cleanvcs
+package cmdcleanvcs
 
 import (
 	"flag"

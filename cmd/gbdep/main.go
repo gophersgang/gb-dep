@@ -8,21 +8,21 @@ import (
 	"os"
 	"time"
 
-	"github.com/gophersgang/gbdep/pkg/buildbins"
-	"github.com/gophersgang/gbdep/pkg/cleanvcs"
-	"github.com/gophersgang/gbdep/pkg/install"
+	"github.com/gophersgang/gbdep/pkg/cmdbuildbins"
+	"github.com/gophersgang/gbdep/pkg/cmdcleanvcs"
+	"github.com/gophersgang/gbdep/pkg/cmdinstall"
+	"github.com/gophersgang/gbdep/pkg/cmdupdate"
 	"github.com/gophersgang/gbdep/pkg/subcommands"
-	"github.com/gophersgang/gbdep/pkg/update"
 )
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	subCmds := subcommands.New(os.Args[0], "A CLI gbdep")
 
-	subCmds.Register("update", "Update dependencies", update.New())
-	subCmds.Register("install", "Install dependencies", install.New())
-	subCmds.Register("cleanvcs", "Removes .git and such from vendor folder", cleanvcs.New())
-	subCmds.Register("buildbins", "Builds vendor binaries / libraries", buildbins.New())
+	subCmds.Register("update", "Update dependencies", cmdupdate.New())
+	subCmds.Register("install", "Install dependencies", cmdinstall.New())
+	subCmds.Register("cleanvcs", "Removes .git and such from vendor folder", cmdcleanvcs.New())
+	subCmds.Register("buildbins", "Builds vendor binaries / libraries", cmdbuildbins.New())
 
 	quiet := flag.Bool("quiet", false, "Silence output")
 	flag.Parse()
