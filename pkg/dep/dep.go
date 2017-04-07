@@ -30,7 +30,7 @@ type Dep struct {
 
 // Run knows what to do
 func (d *Dep) Run() error {
-	fmt.Println("Installing " + d.Name)
+	cfg.Logger.Println("info: Installing " + d.Name)
 	d.ensureProperEnv()
 	d.ensureBasefolders()
 	d.ensureInstalled()
