@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	// Config present our assumptions
+	// Config contains all globally accessible information
 	Config = &config{
 		VendorFolder: "vendor/src",
 	}
@@ -38,7 +38,6 @@ func init() {
 	cl := colog.NewCoLog(os.Stdout, "install ", log.LstdFlags)
 	cl.SetMinLevel(colog.LInfo)
 	cl.SetDefaultLevel(colog.LDebug)
-	//cl.SetDefaultLevel(colog.LWarning)
 	logger := cl.NewLogger()
 	Config.Logger = logger
 	Config.LoggerBackend = cl
