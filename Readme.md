@@ -10,7 +10,7 @@ Reliable, fast dependency management for [GB](https://getgb.io/)
 
 ## Non-Features
   - support Golang < 1.8
-  - automatic resolution for possible major / minor / patch requirements (you do this by manually)
+  - automatic resolution for possible major / minor / patch requirements (there is not good way for this right now)
 
 
 ## Why?
