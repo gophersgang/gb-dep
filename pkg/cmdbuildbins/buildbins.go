@@ -1,4 +1,4 @@
-package buildbins
+package cmdbuildbins
 
 import (
 	"flag"
