@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -38,43 +39,73 @@ var allowedFields = []string{
 	"vcs_type",
 }
 
-// GimmePackages is a higlevel function, that hides the implementation details of how you get
+// GimmePackagefile is a higlevel function, that hides the implementation details of how you get
 // packages information. It works on current path
-func GimmePackages() ([]structs.Pkg, error) {
+func GimmePackagefile() (structs.PackageFile, error) {
+	emptyPackagefile := structs.PackageFile{}
 	currDir, err := os.Getwd()
 	if err != nil {
-		return []structs.Pkg{}, err
+		return emptyPackagefile, err
 	}
 	file, err := FindPackagefile(currDir)
 	if err != nil {
-		return []structs.Pkg{}, err
+		return emptyPackagefile, err
 	}
-	// root := filepath.Dir(file)
-	pkgs, err := Parse(file)
+	res, err := Parse(file)
 	if err != nil {
-		return nil, err
+		return emptyPackagefile, err
 	}
-	return pkgs, nil
+	return res, nil
+}
+
+func isLockfileUptodate(dir string) bool {
+	file, err := FindPackagefile(dir)
+	if err != nil {
+		log.Fatal("NOPE")
+	}
+	lockfile, err := FindPackageLock(dir)
+	if err != nil {
+		return false
+	}
+	res, err := Parse(lockfile)
+	contentLockfile, err := ioutil.ReadFile(lockfile)
+	fmt.Println(contentLockfile)
+	fmt.Println(res)
+	fmt.Println(file)
+	return false
 }
 
 // Parse will read a file and return Pgk structs
-func Parse(path string) ([]structs.Pkg, error) {
+func Parse(path string) (structs.PackageFile, error) {
 	content, err := ioutil.ReadFile(path)
 	checkErr("Could not read "+path, err)
 	if err != nil {
-		return nil, err
+		return structs.PackageFile{}, err
 	}
 	pfile, err := myunmarshal(content)
 	checkErr("Could not ummarshal "+path, err)
 	if err != nil {
-		return nil, err
+		return structs.PackageFile{}, err
 	}
-	return pfile.Packages, nil
+	return pfile, nil
 }
 
 // FindPackagefile returns the path to package.hjson in the given path
 func FindPackagefile(dir string) (string, error) {
 	return gbutils.FindInAncestorPath(dir, pkgFile)
+}
+
+// FindPackageLock returns the path to package.lock in the given path
+func FindPackageLock(dir string) (string, error) {
+	packFile, err := FindPackagefile(dir)
+	if err != nil {
+		return "", err
+	}
+	lockpath := filepath.Join(filepath.Dir(packFile), "package.lock")
+	if gbutils.IsFile(lockpath) {
+		return lockpath, nil
+	}
+	return "", fmt.Errorf("No lockfile found for %s", dir)
 }
 
 // GenerateLockFile creates a lockfile
