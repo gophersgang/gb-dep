@@ -34,7 +34,7 @@ func (r *cmd) Run(args []string, log *log.Logger) {
 	if r.verbose {
 		cfg.SetDebugMode()
 	}
-	cfg.Logger.Println("Build all the vendor binaries / libraries")
+	cfg.Logger.Println("info: (Re-)building vendor binaries / libraries")
 	realcmd(args)
 }
 
@@ -45,7 +45,7 @@ func (r *cmd) Usage() string {
 func realcmd(args []string) error {
 	deps := cmdcommon.CurrentDeps()
 	cmdcommon.RunConcurrently(deps, 5, func(d *dep.Dep) {
-		d.CleanVCS()
+		d.BuildBins()
 	})
 	packagefile.GenerateLockFile(deps)
 	return nil
