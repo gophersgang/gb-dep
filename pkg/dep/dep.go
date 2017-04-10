@@ -53,6 +53,10 @@ func (d *Dep) CleanVCS() error {
 	d.ensureProperEnv()
 	path, _ := d.absoluteVcsFolder()
 	cfg.Logger.Printf("Removing %s\n", path)
+	err := os.RemoveAll(path)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
