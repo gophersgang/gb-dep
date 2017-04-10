@@ -3,11 +3,10 @@ package cmdcleanvcs
 import (
 	"flag"
 	"log"
+	"os"
 
 	"github.com/gophersgang/gbdep/pkg/cmdcommon"
 	"github.com/gophersgang/gbdep/pkg/config"
-	"github.com/gophersgang/gbdep/pkg/dep"
-	"github.com/gophersgang/gbdep/pkg/packagefile"
 	"github.com/gophersgang/gbdep/pkg/subcommands"
 )
 
@@ -43,10 +42,20 @@ func (r *cmd) Usage() string {
 }
 
 func realcmd(args []string) error {
-	deps := cmdcommon.CurrentDeps()
-	cmdcommon.RunConcurrently(deps, 5, func(d *dep.Dep) {
-		d.CleanVCS()
-	})
-	packagefile.GenerateLockFile(deps)
+	folders, err := cmdcommon.AllVendoredVCSFolders()
+	if err != nil {
+		cfg.Logger.Fatal(err)
+	}
+	for _, folder := range folders {
+		cfg.Logger.Printf("removing %s", folder)
+		err := os.RemoveAll(folder)
+		if err != nil {
+			return err
+		}
+	}
+	// folders
+	// cmdcommon.RunConcurrently(deps, 5, func(d *dep.Dep) {
+	// 	d.CleanVCS()
+	// })
 	return nil
 }
