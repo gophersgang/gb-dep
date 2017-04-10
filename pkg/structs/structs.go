@@ -1,6 +1,6 @@
 package structs
 
-// extracted from packagefile prevent the diamond import problem
+// extracted from packagefile to prevent a diamond import problem
 
 // PackageFile represent a packagefile
 type PackageFile struct {
